@@ -136,7 +136,9 @@ include_directories(
 add_executable(gpio src/gpio.cpp)
 add_executable(gpio_input src/gpio_input.cpp)
 add_executable(servo src/servo.cpp)
-add_executable(uart src/uart.cpp)
+add_executable(GPIO_uart src/GPIO_uart.cpp)
+add_executable(GPIO_uart_test src/GPIO_uart_test.cpp)
+add_executable(SPI_MPU9250 src/SPI_MPU9250.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,8 +160,12 @@ target_link_libraries(gpio_input ${catkin_LIBRARIES})
 target_link_libraries(gpio_input pigpiod_if2)
 target_link_libraries(servo ${catkin_LIBRARIES})
 target_link_libraries(servo pigpiod_if2)
-target_link_libraries(uart ${catkin_LIBRARIES})
-target_link_libraries(uart pigpiod_if2)
+target_link_libraries(GPIO_uart ${catkin_LIBRARIES})
+target_link_libraries(GPIO_uart pigpiod_if2)
+target_link_libraries(GPIO_uart_test ${catkin_LIBRARIES})
+target_link_libraries(GPIO_uart_test pigpiod_if2)
+target_link_libraries(SPI_MPU9250 ${catkin_LIBRARIES})
+target_link_libraries(SPI_MPU9250 pigpiod_if2)
 #############
 ## Install ##
 #############
