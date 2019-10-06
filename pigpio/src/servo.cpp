@@ -18,15 +18,18 @@ int main(int argc, char** argv){
 
   int i = 0;
 
-  ros::Rate rate(1);
+  ros::Rate rate(0.5);
   set_servo_pulsewidth(pi,26,1500);
   while(ros::ok()){
 	
 	if(i == 0){
-      set_servo_pulsewidth(pi,26,1400);
+      set_servo_pulsewidth(pi,26,500);
 	  i = 1;
+	}else if(i == 1){
+	  set_servo_pulsewidth(pi,26,2500);
+	  i = 2;
 	}else{
-	  set_servo_pulsewidth(pi,26,1600);
+	  set_servo_pulsewidth(pi,26,1500);
 	  i = 0;
 	}
 	ROS_INFO("%d",i);

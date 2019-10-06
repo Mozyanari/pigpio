@@ -1,0 +1,10 @@
+<launch>
+  <node pkg ="pigpio" name ="acc_gyr_madgwick" type ="acc_gyr_madgwick">
+  </node>
+  
+  <node pkg ="imu_filter_madgwick" name ="imu_filter_node" type ="imu_filter_node" output="screen">
+    <param name="use_mag" value="false" type="bool" />
+    <param name="publish_tf" value="true" type="bool" />
+    <param name="reverse_tf" value="true" type="bool" />
+  </node>
+</launch>

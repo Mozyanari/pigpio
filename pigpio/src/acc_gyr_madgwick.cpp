@@ -40,7 +40,6 @@ class SPI_MPU9250
 {
   public:
   SPI_MPU9250();
-  ~SPI_MPU9250();
   int pigpio_initialize();
   int spi_initialize();
   void who_am_i_check();
@@ -51,10 +50,11 @@ class SPI_MPU9250
   int16_t get_gyr_x();
   int16_t get_gyr_y();
   int16_t get_gyr_z();
-  
+  ros::Publisher pub_imu;
 
   private:
   ros::NodeHandle n;
+  
   char pigpio_spi_read(char address);
   char pigpio_spi_write(char address, char write_data);
   int pigpio_check;
@@ -62,19 +62,8 @@ class SPI_MPU9250
 };
 
 SPI_MPU9250::SPI_MPU9250(){
-  
+  pub_imu = n.advertise<sensor_msgs::Imu>("imu/data_raw",100,false);
 }
-
-SPI_MPU9250::~SPI_MPU9250(){
-  int close_check = spi_close(pigpio_check,spi_handle);
-  if(close_check == 0){
-    ROS_INFO("spi close OK");
-  }else{
-    ROS_INFO("spi close fail");
-  }
-}
-
-
 
 int SPI_MPU9250::pigpio_initialize(){
   pigpio_check = pigpio_start(NULL,NULL);
@@ -90,7 +79,7 @@ int SPI_MPU9250::pigpio_initialize(){
 int SPI_MPU9250::spi_initialize(){
   //spi config
   unsigned int spi_channel = 0;			//0ch
-  unsigned int baud = 500000;			//500kHz
+  unsigned int baud = 1000000;			//1MHz
   
   //spi_flags setting
   unsigned int spi_flags = 0;
@@ -200,7 +189,7 @@ int16_t SPI_MPU9250::get_gyr_z(){
 }
 
 int main(int argc, char** argv){
-  ros::init(argc, argv, "SPI_MPU9250");
+  ros::init(argc, argv, "acc_gyr_madgwick");
   
   SPI_MPU9250 mpu9250;
   //pigpio initialize
@@ -215,41 +204,62 @@ int main(int argc, char** argv){
 
   //MPU9250 power on
   mpu9250.mpu9250_power_on();
-  
+  	
   ros::Rate rate(10);
   while(ros::ok()){
-    //m/s^2
+
     double acc_x = mpu9250.get_acc_x()/16384.0*9.81;
     double acc_y = mpu9250.get_acc_y()/16384.0*9.81;
 	double acc_z = mpu9250.get_acc_z()/16384.0*9.81;
-    
+	double gyr_x = mpu9250.get_gyr_x()/130.072*0.01745;
+	double gyr_y = mpu9250.get_gyr_y()/130.072*0.01745;
+	double gyr_z = mpu9250.get_gyr_z()/130.072*0.01745;
+
+
+/*
+    double acc_x = mpu9250.get_acc_x()/16384.0;
+    double acc_y = mpu9250.get_acc_y()/16384.0;
+	double acc_z = mpu9250.get_acc_z()/16384.0;
 	double gyr_x = mpu9250.get_gyr_x()/130.072;
 	double gyr_y = mpu9250.get_gyr_y()/130.072;
 	double gyr_z = mpu9250.get_gyr_z()/130.072;
-	ROS_INFO("acc_x = %lf",acc_x);
-	ROS_INFO("acc_y = %lf",acc_y);
-	ROS_INFO("acc_z = %lf",acc_z);
-	ROS_INFO("gyr_x = %lf",gyr_x);
-	ROS_INFO("gyr_y = %lf",gyr_y);
-	ROS_INFO("gyr_z = %lf\n",gyr_z);
+*/
+/*
+    double acc_x = mpu9250.get_acc_x()/16384.0 - ave_acc_x;
+    double acc_y = mpu9250.get_acc_y()/16384.0 - ave_acc_y;
+	double acc_z = mpu9250.get_acc_z()/16384.0 - ave_acc_z;
+	double gyr_x = mpu9250.get_gyr_x()/130.072 - ave_gyr_x;
+	double gyr_y = mpu9250.get_gyr_y()/130.072 - ave_gyr_y;
+	double gyr_z = mpu9250.get_gyr_z()/130.072 - ave_gyr_z;
+	ROS_INFO("acc_x = %f",acc_x);
+	ROS_INFO("acc_y = %f",acc_y);
+	ROS_INFO("acc_z = %f",acc_z);
+	ROS_INFO("gyr_x = %f",gyr_x);
+	ROS_INFO("gyr_y = %f",gyr_y);
+	ROS_INFO("gyr_z = %f",gyr_z);
+*/
 
-/*
-    double gyr_x = mpu9250.get_gyr_x();
-	double gyr_y = mpu9250.get_gyr_y();
-	double gyr_z = mpu9250.get_gyr_z();
-    ROS_INFO("gyr_x = %lf",gyr_x);
-	ROS_INFO("gyr_y = %lf",gyr_y);
-	ROS_INFO("gyr_z = %lf",gyr_z);
-*/
-/*
-    double acc_x = mpu9250.get_acc_x();
-    double acc_y = mpu9250.get_acc_y();
-	double acc_z = mpu9250.get_acc_z();
-    ROS_INFO("acc_x = %lf",acc_x);
-	ROS_INFO("acc_y = %lf",acc_y);
-	ROS_INFO("acc_z = %lf\n",acc_z);
-*/
-    
+	sensor_msgs::Imu Imu;
+	Imu.header.frame_id ="imu";
+	Imu.header.stamp = ros::Time::now();
+	Imu.linear_acceleration.x = acc_x;
+	Imu.linear_acceleration.y = acc_y;
+	Imu.linear_acceleration.z = acc_z;
+
+	Imu.angular_velocity.x = gyr_x;
+	Imu.angular_velocity.y = gyr_y;
+	Imu.angular_velocity.z = gyr_z;
+
+    /*
+    Imu.orientation_covariance[0] = -1.0;
+    Imu.angular_velocity_covariance[0] = -1.0;
+    Imu.linear_acceleration_covariance[0] = -1.0;
+    */
+    //Imu.orientation.w = 1.0;
+
+	mpu9250.pub_imu.publish(Imu);
+	
+
     /* 
 	  char acc_z_h = pigpio_spi_read(ACCEL_ZOUT_H);
 	  char acc_z_l = pigpio_spi_read(ACCEL_ZOUT_L);

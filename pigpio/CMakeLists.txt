@@ -135,11 +135,13 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(gpio src/gpio.cpp)
 add_executable(gpio_input src/gpio_input.cpp)
+add_executable(gpio_topic src/gpio_topic.cpp)
 add_executable(servo src/servo.cpp)
 add_executable(GPIO_uart src/GPIO_uart.cpp)
 add_executable(GPIO_uart_test src/GPIO_uart_test.cpp)
 add_executable(SPI_MPU9250 src/SPI_MPU9250.cpp)
 add_executable(SPI_test src/SPI_test.cpp)
+add_executable(acc_gyr_madgwick src/acc_gyr_madgwick.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -159,6 +161,8 @@ target_link_libraries(gpio ${catkin_LIBRARIES})
 target_link_libraries(gpio pigpiod_if2)
 target_link_libraries(gpio_input ${catkin_LIBRARIES})
 target_link_libraries(gpio_input pigpiod_if2)
+target_link_libraries(gpio_topic ${catkin_LIBRARIES})
+target_link_libraries(gpio_topic pigpiod_if2)
 target_link_libraries(servo ${catkin_LIBRARIES})
 target_link_libraries(servo pigpiod_if2)
 target_link_libraries(GPIO_uart ${catkin_LIBRARIES})
@@ -169,6 +173,9 @@ target_link_libraries(SPI_MPU9250 ${catkin_LIBRARIES})
 target_link_libraries(SPI_MPU9250 pigpiod_if2)
 target_link_libraries(SPI_test ${catkin_LIBRARIES})
 target_link_libraries(SPI_test pigpiod_if2)
+target_link_libraries(acc_gyr_madgwick ${catkin_LIBRARIES})
+target_link_libraries(acc_gyr_madgwick pigpiod_if2)
+
 #############
 ## Install ##
 #############
